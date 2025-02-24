@@ -15,7 +15,7 @@ export default function ThemeToggle() {
     >
       <motion.div
         initial={false}
-        animate={{ rotate: theme === 'dark' ? 180 : 0 }}
+        animate={{ rotate: theme === 'light' ? 180 : 0 }}
         transition={{ duration: 0.3 }}
       >
         {theme === 'light' ? (

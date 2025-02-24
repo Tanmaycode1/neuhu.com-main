@@ -11,8 +11,8 @@ interface PublicPostCardProps {
   post: Post;
 }
 
-const getImageUrl = (url: string | null | undefined) => {
-  if (!url) return null;
+const getImageUrl = (url: string | null | undefined): string | undefined => {
+  if (!url) return undefined;
   if (url.startsWith('http')) return url;
   return `${process.env.NEXT_PUBLIC_API_URL}${url}`;
 };

@@ -17,6 +17,7 @@ import logging
 from rest_framework.authentication import BasicAuthentication
 from django.core.paginator import Paginator
 from django.db.models import Exists, OuterRef, Q
+from core.utils.test_connections import test_s3_connection
 
 logger = logging.getLogger(__name__)
 
@@ -674,22 +675,15 @@ def search_users(request):
 
 class NotificationViewSet(viewsets.ModelViewSet):
     serializer_class = NotificationSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        queryset = self.request.user.notifications.all()
-        
-        # Filter by notification type if specified
-        notification_type = self.request.query_params.get('type')
-        if notification_type:
-            queryset = queryset.filter(notification_type=notification_type)
+        # Check if this is a schema generation request
+        if getattr(self, 'swagger_fake_view', False):
+            # Return empty queryset for schema generation
+            return Notification.objects.none()
             
-        # Filter unread only if specified
-        unread_only = self.request.query_params.get('unread_only') == 'true'
-        if unread_only:
-            queryset = queryset.filter(is_read=False)
-            
-        return queryset
+        return self.request.user.notifications.all()
 
     @handle_exceptions
     def list(self, request):
@@ -735,3 +729,8 @@ class NotificationViewSet(viewsets.ModelViewSet):
         """Delete all notifications"""
         self.get_queryset().delete()
         return api_response(message="All notifications cleared successfully")
+
+def upload_file(request):
+    if test_s3_connection():
+        logger.info("S3 connection verified before upload")
+    # ... rest of your upload code

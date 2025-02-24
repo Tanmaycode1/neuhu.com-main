@@ -18,7 +18,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key-for-dev')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = ['*']  # For development only
 
 # Application definition
 INSTALLED_APPS = [
@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'authentication.apps.AuthenticationConfig',
     'posts.apps.PostsConfig',
-    'media.apps.MediaConfig',
     'interactions.apps.InteractionsConfig',
     'search.apps.SearchConfig',
     'tags.apps.TagsConfig',
@@ -137,12 +136,9 @@ SIMPLE_JWT = {
 
 # Channels configuration
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('redis', 6379)],
-        },
-    },
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
 }
 
 # Celery Configuration
@@ -178,13 +174,10 @@ MEDIA_SUBDIRS = {
 for dir_path in MEDIA_SUBDIRS.values():
     os.makedirs(dir_path, exist_ok=True)
 
-# CORS settings
-CORS_ALLOWED_ORIGINS = [
+# Add WebSocket allowed origins
+CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
-    "http://127.0.0.1:3000",
 ]
-
-CORS_ALLOW_CREDENTIALS = True 
 
 # Add these settings
 AUTHENTICATION_BACKENDS = (
@@ -220,3 +213,10 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 
 # Add these settings for search
 POSTGRES_SEARCH_CONFIG = 'english'  # or your preferred language 
+
+# For WebSocket connections
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+} 

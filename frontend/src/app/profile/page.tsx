@@ -19,7 +19,7 @@ import { FollowModal } from '@/components/profile/FollowModal';
 
 // Types
 import type { UserProfile } from '@/types/user';
-import { postsApi } from '@/services/postsApi';
+import { postsApi, Post } from '@/services/postsApi';
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -124,7 +124,7 @@ export default function ProfilePage() {
     try {
       setLoadingPosts(true);
       const response = await postsApi.getMyPosts();
-      if (response.success && response.data.results) {
+      if (response.success && response.data?.results) {
         setPosts(response.data.results);
       } else {
         toast.error('Failed to load posts');
@@ -363,6 +363,7 @@ export default function ProfilePage() {
                           <FollowButton 
                             userId={user.id}
                             username={user.username}
+                            isFollowing={currentUserFollowing.includes(user.id)}
                             onFollowChange={loadSuggestions}
                             className="shrink-0"
                           />

@@ -289,17 +289,13 @@ function OtherProfileContent({ userId }: { userId: string }) {
                                 className="relative h-10 w-10 rounded-full overflow-hidden"
                                 whileHover={{ scale: 1.05 }}
                               >
-                                {user.avatar ? (
+                                {user.avatar && (
                                   <Image
                                     src={getFullImageUrl(user.avatar)}
                                     alt={user.username}
                                     fill
                                     className="object-cover"
                                   />
-                                ) : (
-                                  <div className="h-full w-full bg-primary/10 flex items-center justify-center">
-                                    <User className="h-5 w-5 text-primary" />
-                                  </div>
                                 )}
                               </motion.div>
                             </Link>

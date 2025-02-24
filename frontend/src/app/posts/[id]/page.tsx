@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { postsApi, Post } from '@/services/postsApi';
 import { toast } from 'react-hot-toast';
+import { userApi } from '@/services/api';
 
 export default function PostPage() {
   const params = useParams();
@@ -17,6 +18,7 @@ export default function PostPage() {
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -44,6 +46,20 @@ export default function PostPage() {
     }
   }, [postId]);
 
+  const handleFollow = async () => {
+    if (!post?.author?.id) return;
+    
+    try {
+      const response = await userApi[isFollowing ? 'unfollowUser' : 'followUser'](post.author.id);
+      if (response.success) {
+        setIsFollowing(!isFollowing);
+        toast.success(isFollowing ? 'Unfollowed' : 'Following');
+      }
+    } catch (error) {
+      toast.error('Failed to update follow status');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -60,6 +76,14 @@ export default function PostPage() {
             <h1 className="ml-4 text-lg font-semibold">
               Post
             </h1>
+            <Button 
+              variant="default" 
+              size="sm"
+              className="bg-black hover:bg-black/90 text-white"
+              onClick={handleFollow}
+            >
+              {isFollowing ? 'Following' : 'Follow'}
+            </Button>
           </div>
         </div>
       </div>

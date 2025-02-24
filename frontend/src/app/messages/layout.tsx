@@ -36,8 +36,8 @@ export default function ProfileLayout({
           <Sidebar currentUser={currentUser} />
         </div>
 
-        {/* Mobile Header */}
-        <div className="lg:hidden fixed top-0 inset-x-0 z-30">
+        {/* Mobile Header - Increase z-index */}
+        <div className="lg:hidden fixed top-0 inset-x-0 z-40">
           <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
             <div className="px-4 h-16 flex items-center justify-between">
               <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-400">
@@ -47,11 +47,11 @@ export default function ProfileLayout({
                 onClick={toggleTheme}
                 className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
-                {theme === 'dark' ? (
+                {/* {theme === 'dark' ? (
                   <Sun className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                 ) : (
                   <Moon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                )}
+                )} */}
               </button>
             </div>
           </div>
@@ -59,13 +59,13 @@ export default function ProfileLayout({
 
         {/* Main Content */}
         <main className="flex-1 lg:pl-64">
-          <div className="min-h-screen pt-16 lg:pt-0">
+          <div className="min-h-screen pt-16 pb-16 lg:pt-0 lg:pb-0">
             {children}
           </div>
         </main>
 
-        {/* Mobile Navigation */}
-        <div className="lg:hidden">
+        {/* Mobile Navigation - Increase z-index */}
+        <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
           <MobileNav />
         </div>
       </div>

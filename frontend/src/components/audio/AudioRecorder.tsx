@@ -21,10 +21,10 @@ export const AudioRecorder = ({ onAudioChange }: AudioRecorderProps) => {
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const timerRef = useRef<NodeJS.Timeout>();
+  const timerRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
-  const animationFrameRef = useRef<number>();
+  const animationFrameRef = useRef<number | undefined>(undefined);
   const audioChunksRef = useRef<Blob[]>([]);
 
   useEffect(() => {

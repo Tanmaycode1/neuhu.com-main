@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
-import { Loader2, Search, User, TrendingUp } from 'lucide-react';
+import { Input } from '@/components/ui/Input';
+import { Loader2, Search, User as UserIcon, TrendingUp } from 'lucide-react';
 import { searchApi, getFullImageUrl } from '@/services/api';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { MobileNav } from '@/components/layout/MobileNav';
 import { userApi } from '@/services/api';
 import { postsApi } from '@/services/postsApi';
+import type { User } from '@/types/user';
 
 interface SearchResults {
   posts: any[];
@@ -30,6 +31,7 @@ export default function SearchPage() {
   const [trending, setTrending] = useState<any[]>([]);
   const [loadingTrending, setLoadingTrending] = useState(true);
   const [trendingSearches, setTrendingSearches] = useState<any[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const performSearch = async (searchQuery: string, bypassCache = false) => {
     if (!searchQuery.trim()) {
@@ -41,10 +43,10 @@ export default function SearchPage() {
       setLoading(true);
       const response = await postsApi.search(searchQuery, activeTab);
       if (response.success) {
-        setResults(response.data);
+        setResults(response.data ?? { posts: [], users: [] });
       } else {
         setResults({ posts: [], users: [] });
-        if (!response.message?.includes('Network error')) {
+        if (!response.error?.includes('Network error')) {
           toast.error('Failed to perform search');
         }
       }
@@ -70,7 +72,7 @@ export default function SearchPage() {
       try {
         const result = await postsApi.getTrendingSearches();
         if (result.success) {
-          setTrendingSearches(result.data);
+          setTrendingSearches(result.data ?? []);
         }
       } catch (error) {
         console.error('Error loading trending searches:', error);
@@ -78,6 +80,16 @@ export default function SearchPage() {
     };
 
     loadTrending();
+  }, []);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const response = await userApi.getProfile();
+      if (response.success) {
+        setCurrentUser(response.data);
+      }
+    };
+    loadUser();
   }, []);
 
   const handleFollowChange = async (userId: string, isFollowed: boolean) => {
@@ -109,7 +121,7 @@ export default function SearchPage() {
         {/* Left Sidebar - Fixed width */}
         <div className="hidden lg:block w-[270px] shrink-0">
           <div className="fixed top-0 left-0 w-[270px] h-screen border-r border-gray-200 dark:border-gray-800">
-            <Sidebar />
+            <Sidebar currentUser={currentUser} />
           </div>
         </div>
 
@@ -172,7 +184,7 @@ export default function SearchPage() {
                                   />
                                 ) : (
                                   <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                                    <User className="h-6 w-6 text-primary" />
+                                    <UserIcon className="h-6 w-6 text-primary" />
                                   </div>
                                 )}
                               </Link>

@@ -1,6 +1,17 @@
 #!/bin/bash
 set -e
 
+# Create necessary directories
+mkdir -p /app/staticfiles/admin/js
+mkdir -p /app/media/audio
+mkdir -p /app/media/avatars
+mkdir -p /app/static
+
+# Set permissions
+chmod -R 755 /app/staticfiles
+chmod -R 755 /app/media
+chmod -R 755 /app/static
+
 wait_for_service() {
     local host="$1"
     local port="$2"
@@ -24,23 +35,19 @@ ls -la /app/core/
 wait_for_service db 5432 "PostgreSQL"
 wait_for_service redis 6379 "Redis"
 
-# Initialize application
+# Wait for database (use wait_for_db.py if it exists, otherwise use wait_for_service)
+if [ -f "wait_for_db.py" ]; then
+    python wait_for_db.py
+else
+    echo "wait_for_db.py not found, using basic check"
+    wait_for_service db 5432 "Database"
+fi
+
+# Run migrations
 python manage.py migrate
+
+# Collect static files
 python manage.py collectstatic --noinput
 
-# Verify Django configuration
-python -c "
-import django
-from django.conf import settings
-print(f'Django version: {django.get_version()}')
-print(f'Settings module: {settings.SETTINGS_MODULE}')
-"
-
-# Start application
-if [ "$DJANGO_ENV" = "production" ]; then
-    echo "Starting production server..."
-    gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 4 --log-level debug
-else
-    echo "Starting development server..."
-    python manage.py runserver 0.0.0.0:8000
-fi
+# Start Daphne with debug logging
+exec daphne -v2 -b 0.0.0.0 -p 8000 core.asgi:application

@@ -61,6 +61,7 @@ import { userApi } from '@/services/api';
 
 interface PostCardProps {
   post: Post;
+  expanded?: boolean;
   onPostUpdate?: (updatedPost: Post) => void;
   isLandingPage?: boolean;
 }

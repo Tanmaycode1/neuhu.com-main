@@ -1,4 +1,4 @@
-import { Input, InputProps } from '@/components/ui/input';
+import { Input, InputProps } from '@/components/ui/Input';
 import { ReactNode } from 'react';
 
 interface InputWithIconProps extends InputProps {

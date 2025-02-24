@@ -41,11 +41,11 @@ export function PageHeader({ title, showBack = true }: PageHeaderProps) {
               size="icon"
               onClick={toggleTheme}
             >
-              {theme === 'dark' ? (
+              {/* {theme === 'dark' ? (
                 <Sun className="h-4 w-4" />
               ) : (
                 <Moon className="h-4 w-4" />
-              )}
+              )} */}
             </Button>
             <Button
               variant="ghost"

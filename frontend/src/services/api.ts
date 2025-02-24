@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
+import { UserProfileUpdate } from '@/types/user';
 
 // Create base API client
 export const apiClient = axios.create({
@@ -159,8 +160,8 @@ export class ApiError extends Error {
   }
 }
 
-export const getFullImageUrl = (path: string) => {
-  if (!path) return null;
+export const getFullImageUrl = (path: string | null): string => {
+  if (!path) return '/images/default-avatar.png';  // Return a default image path
   if (path.startsWith('http')) return path;
   return `${process.env.NEXT_PUBLIC_API_URL}${path}`;
 };
@@ -358,13 +359,7 @@ export const userApi = {
     }
   },
 
-  updateProfile: async (data: {
-    first_name?: string;
-    last_name?: string;
-    bio?: string;
-    social_links?: Record<string, string>;
-    account_privacy?: string;
-  }) => {
+  updateProfile: async (data: UserProfileUpdate) => {
     try {
       const response = await api.patch('/api/users/me/profile/', data);
       return response.data;
@@ -544,33 +539,18 @@ export const chatApi = {
   getRooms: async () => {
     try {
       const response = await api.get('/api/chat/rooms/');
-      if (response.data?.success) {
-        // Transform avatar URLs for all rooms
-        const transformedData = response.data.data.map((room: any) => ({
-          ...room,
-          other_participant: {
-            ...room.other_participant,
-            avatar_url: room.other_participant.avatar_url ? 
-              getFullImageUrl(room.other_participant.avatar_url) : null
-          }
-        }));
-        return {
-          success: true,
-          data: transformedData,
-          message: 'Chat rooms retrieved successfully'
-        };
-      }
       return {
-        success: false,
-        message: response.data?.message || 'Failed to fetch chat rooms',
-        data: []
+        success: true,
+        data: response.data,  // This will be a paginated response with results array
+        message: 'Chat rooms retrieved successfully'
       };
-    } catch (error: any) {
+    } catch (error: unknown) {  // Add proper error typing
+      const err = error as { response?: { data?: { message?: string } } };
       console.error('Error fetching chat rooms:', error);
       return {
         success: false,
-        message: error.response?.data?.message || 'Failed to fetch chat rooms',
-        data: []
+        message: err.response?.data?.message || 'Failed to fetch chat rooms',
+        data: { results: [] }
       };
     }
   },
@@ -607,36 +587,28 @@ export const chatApi = {
     }
   },
 
-  getMessages: async (roomId: string): Promise<ApiResponse> => {
+  getMessages: async (roomId: string, page = 1) => {
     try {
-      const response = await api.get(`/api/chat/rooms/${roomId}/messages/`);
-      if (response.data?.success) {
-        // Transform avatar URLs for all messages
-        const transformedMessages = response.data.data.map((message: any) => ({
-          ...message,
-          sender: {
-            ...message.sender,
-            avatar_url: message.sender.avatar_url ? 
-              getFullImageUrl(message.sender.avatar_url) : null
-          }
-        }));
+      const response = await api.get(`/api/chat/rooms/${roomId}/messages/`, {
+        params: { page }
+      });
+      return {
+        success: true,
+        data: response.data,
+        message: 'Messages retrieved successfully'
+      };
+    } catch (error) {
+      if (error && typeof error === 'object' && 'response' in error) {
         return {
-          success: true,
-          data: transformedMessages,
-          message: 'Messages retrieved successfully'
+          success: false,
+          message: (error.response as any)?.data?.message || 'Failed to fetch messages',
+          data: { results: [], next: null, previous: null }
         };
       }
       return {
         success: false,
-        message: response.data?.message || 'Failed to fetch messages',
-        data: []
-      };
-    } catch (error: any) {
-      console.error('Error fetching messages:', error);
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Failed to fetch messages',
-        data: []
+        message: 'Failed to fetch messages',
+        data: { results: [], next: null, previous: null }
       };
     }
   },
@@ -778,7 +750,7 @@ api.interceptors.request.use(request => {
     data: request?.data || {},
     headers: request?.headers || {}
   };
-  console.log('Request:', requestInfo);
+  
   return request;
 }, error => {
   // Log request errors with safe error handling

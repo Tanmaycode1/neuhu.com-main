@@ -5,12 +5,13 @@ from .models import ChatRoom, Message
 
 User = get_user_model()
 
-class UserSerializer(serializers.ModelSerializer):
+class ChatUserSerializer(serializers.ModelSerializer):
     avatar_url = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ['id', 'username', 'avatar_url']
+        ref_name = "ChatUser"
 
     def get_avatar_url(self, obj):
         if obj.avatar:
@@ -22,9 +23,10 @@ class MessageSerializer(serializers.ModelSerializer):
         model = Message
         fields = ['id', 'content', 'sender', 'created_at', 'is_read', 'read_at', 
                  'attachment', 'attachment_type', 'updated_at']
+        ref_name = "ChatMessage"
 
 class ChatRoomSerializer(serializers.ModelSerializer):
-    participants = UserSerializer(many=True, read_only=True)
+    participants = ChatUserSerializer(many=True, read_only=True)
     last_message = serializers.SerializerMethodField()
     unread_count = serializers.SerializerMethodField()
     other_participant = serializers.SerializerMethodField()
@@ -33,6 +35,7 @@ class ChatRoomSerializer(serializers.ModelSerializer):
         model = ChatRoom
         fields = ['id', 'participants', 'created_at', 'updated_at', 
                  'last_message', 'unread_count', 'other_participant']
+        ref_name = "ChatRoom"
 
     def get_last_message(self, obj):
         message = obj.get_last_message()
@@ -48,5 +51,5 @@ class ChatRoomSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         other_participant = obj.participants.exclude(id=user.id).first()
         if other_participant:
-            return UserSerializer(other_participant).data
+            return ChatUserSerializer(other_participant).data
         return None

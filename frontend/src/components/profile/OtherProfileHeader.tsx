@@ -67,8 +67,8 @@ export function OtherProfileHeader({
                   <FollowButton
                     userId={profile.id}
                     username={profile.username}
-                    isFollowing={profile.is_followed}
-                    onFollowChange={onFollowChange}
+                    isFollowing={profile.is_followed ?? false}
+                    onFollowChange={onFollowChange ?? (() => {})}
                     className="w-32 bg-primary hover:bg-primary/90 text-white shadow-lg rounded-full"
                   />
                 </motion.div>
@@ -81,8 +81,8 @@ export function OtherProfileHeader({
                 <FollowButton
                   userId={profile.id}
                   username={profile.username}
-                  isFollowing={profile.is_followed}
-                  onFollowChange={onFollowChange}
+                  isFollowing={profile.is_followed ?? false}
+                  onFollowChange={onFollowChange ?? (() => {})}
                   className="w-28 bg-primary hover:bg-primary/90 text-white shadow-lg rounded-full"
                 />
               </motion.div>

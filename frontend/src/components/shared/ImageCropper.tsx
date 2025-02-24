@@ -4,8 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Cropper from 'react-easy-crop';
-import { Point, Area } from 'react-easy-crop/types';
+import Cropper, { Point, Area } from 'react-easy-crop';
 
 interface ImageCropperProps {
   image: string;
@@ -120,7 +119,6 @@ const ImageCropper = ({ image, onCrop, onCancel, aspect = 16/9 }: ImageCropperPr
             }}
             cropShape="rect"
             showGrid={true}
-            className="rounded-xl"
           />
         </div>
 

@@ -21,7 +21,7 @@ import Image from "next/image";
 
 interface AudioPlayerProps {
   audioUrl: string;
-  coverImage?: string;
+  coverImage: string | null | undefined;
   title: string;
   artist?: string;
   onProgress?: (progress: number) => void;

@@ -1,62 +1,53 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { WebSocketClient } from '../services/websocket';
+import { useEffect, useRef, useCallback } from 'react';
 
-interface WebSocketConfig {
+interface WebSocketOptions {
   url: string;
-  onMessage: (data: any) => void;
+  onMessage?: (data: any) => void;
   onConnect?: () => void;
   onDisconnect?: () => void;
 }
 
-export const useWebSocket = (config: WebSocketConfig) => {
-  const [isConnected, setIsConnected] = useState(false);
-  const wsClientRef = useRef<WebSocketClient | null>(null);
-
-  const handleConnect = useCallback(() => {
-    setIsConnected(true);
-    config.onConnect?.();
-  }, [config]);
-
-  const handleDisconnect = useCallback(() => {
-    setIsConnected(false);
-    config.onDisconnect?.();
-  }, [config]);
-
-  const handleMessage = useCallback((data: any) => {
-    config.onMessage(data);
-  }, [config.onMessage]);
+export function useWebSocket({ url, onMessage, onConnect, onDisconnect }: WebSocketOptions) {
+  const ws = useRef<WebSocket | null>(null);
+  const isConnected = useRef(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    if (!token || !config.url) return;
+    if (!url) return;
 
-    if (!wsClientRef.current) {
-      wsClientRef.current = new WebSocketClient(
-        config.url,
-        handleMessage,
-        handleConnect,
-        handleDisconnect
-      );
-    }
+    const socket = new WebSocket(url);
 
-    wsClientRef.current.connect(token);
+    socket.onopen = () => {
+      console.log('WebSocket connected');
+      isConnected.current = true;
+      onConnect?.();
+    };
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      onMessage?.(data);
+    };
+
+    socket.onclose = () => {
+      console.log('WebSocket disconnected');
+      isConnected.current = false;
+      onDisconnect?.();
+    };
+
+    ws.current = socket;
 
     return () => {
-      if (wsClientRef.current) {
-        wsClientRef.current.disconnect();
-        wsClientRef.current = null;
-      }
+      socket.close();
     };
-  }, [config.url, handleMessage, handleConnect, handleDisconnect]);
+  }, [url, onMessage, onConnect, onDisconnect]);
 
-  const sendMessage = useCallback((type: string, payload: any) => {
-    if (wsClientRef.current) {
-      wsClientRef.current.sendMessage(type, payload);
+  const sendMessage = useCallback((message: any) => {
+    if (ws.current?.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify(message));
     }
   }, []);
 
   return {
-    isConnected,
-    sendMessage
+    sendMessage,
+    isConnected: isConnected.current
   };
-};
+}

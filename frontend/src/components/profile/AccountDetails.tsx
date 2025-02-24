@@ -33,14 +33,8 @@ export function AccountDetails({ profile }: AccountDetailsProps) {
     {
       icon: Mail,
       label: "Email Verification",
-      value: profile.email_verified ? "Verified" : "Not Verified",
+      value: profile.is_verified ? "Verified" : "Not Verified",
       type: "verification"
-    },
-    {
-      icon: Calendar,
-      label: "Joined",
-      value: formatDate(profile.date_joined),
-      type: "date"
     }
   ];
 
@@ -73,11 +67,11 @@ export function AccountDetails({ profile }: AccountDetailsProps) {
               )}
               {detail.type === "verification" && (
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  profile.email_verified
+                  profile.is_verified
                     ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200'
                     : 'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200'
                 }`}>
-                  {profile.email_verified ? 'Verified' : 'Not Verified'}
+                  {profile.is_verified ? 'Verified' : 'Not Verified'}
                 </span>
               )}
             </div>

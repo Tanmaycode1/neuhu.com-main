@@ -42,10 +42,12 @@ if DEBUG:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [REDIS_URL],
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(os.getenv('REDIS_HOST', 'redis'), 6379)],
+            "capacity": 1500,  # Optional: default is 100
+            "expiry": 10,  # Optional: default is 60
         },
     },
 }

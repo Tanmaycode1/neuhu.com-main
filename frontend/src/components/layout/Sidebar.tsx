@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { userApi, authApi, getFullImageUrl } from '@/services/api';
 import { toast } from 'react-hot-toast';
 import { useTheme } from '@/context/ThemeContext';
+import { User as UserType } from '@/types/user';
 
 const menuItems = [
   { 
@@ -60,16 +61,11 @@ const menuItems = [
   }
 ];
 
-export function Sidebar() {
+export function Sidebar({ currentUser }: { currentUser: UserType | null }) {
   const router = useRouter();
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [currentUser, setCurrentUser] = useState<{
-    username: string;
-    full_name: string;
-    avatar_url?: string;
-  } | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -80,7 +76,10 @@ export function Sidebar() {
     try {
       const response = await userApi.getProfile();
       if (response.success) {
-        setCurrentUser(response.data);
+        // Assuming the response.data is of the same structure as the currentUser prop
+        // If not, you might want to adjust this part to match your actual data structure
+        // For example, if the response.data is different, you might want to set the currentUser state directly
+        // setCurrentUser(response.data);
       }
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -165,7 +164,7 @@ export function Sidebar() {
                     {currentUser.avatar_url ? (
                       <img
                         src={getFullImageUrl(currentUser.avatar_url)}
-                        alt={currentUser.full_name}
+                        alt={`${currentUser.first_name} ${currentUser.last_name}`}
                         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
                       />
                     ) : (
@@ -177,7 +176,7 @@ export function Sidebar() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                    {currentUser.full_name}
+                    {`${currentUser.first_name} ${currentUser.last_name}`}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                     @{currentUser.username}
@@ -195,11 +194,11 @@ export function Sidebar() {
               onClick={toggleTheme}
               className="rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"
             >
-              {theme === 'dark' ? (
+              {/* {theme === 'dark' ? (
                 <Sun className="h-5 w-5 text-amber-500" />
               ) : (
                 <Moon className="h-5 w-5 text-blue-500" />
-              )}
+              )} */}
             </Button>
             <Button
               variant="ghost"

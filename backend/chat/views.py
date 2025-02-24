@@ -14,6 +14,11 @@ class ChatRoomViewSet(viewsets.ModelViewSet):
     serializer_class = ChatRoomSerializer
     
     def get_queryset(self):
+        # Check if this is a schema generation request
+        if getattr(self, 'swagger_fake_view', False):
+            # Return empty queryset for schema generation
+            return ChatRoom.objects.none()
+            
         return ChatRoom.objects.filter(
             participants=self.request.user
         ).prefetch_related(
@@ -84,9 +89,10 @@ class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
     
     def get_queryset(self):
+        # Change the ordering to return newest messages first for pagination
         return Message.objects.filter(
             room_id=self.kwargs.get('room_pk')
-        ).select_related('sender')
+        ).select_related('sender').order_by('-created_at')  # Newest first for pagination
 
     def get_serializer_context(self):
         context = super().get_serializer_context()

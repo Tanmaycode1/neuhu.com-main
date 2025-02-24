@@ -25,15 +25,20 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && \
     pip install wheel && \
     pip install --no-cache-dir -r requirements.txt && \
-    pip install channels channels-redis daphne
+    pip install channels==3.0.5 channels-redis==3.4.1 daphne==3.0.2
 
 # Copy scripts
 COPY entrypoint.sh run-dev.sh ./
 RUN chmod +x entrypoint.sh run-dev.sh
 
-# Create necessary directories
-RUN mkdir -p /app/media/audio /app/media/avatars /app/static /app/staticfiles /app/core/utils
-RUN chmod -R 755 /app
+# Create necessary directories with proper permissions
+RUN mkdir -p /app/staticfiles/admin/js \
+    && mkdir -p /app/media/audio \
+    && mkdir -p /app/media/avatars \
+    && mkdir -p /app/static \
+    && chmod -R 755 /app/staticfiles \
+    && chmod -R 755 /app/media \
+    && chmod -R 755 /app/static
 
 # Copy the rest of the application
 COPY . .

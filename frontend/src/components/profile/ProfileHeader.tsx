@@ -87,7 +87,7 @@ export function ProfileHeader({
             <div className="flex justify-center sm:justify-start mt-4">
               <ProfileStats
                 postCount={profile.post_count || 0}
-                followerCount={profile.follower_count}
+                followerCount={profile.followers_count}
                 followingCount={profile.following_count}
                 onFollowersClick={isPublicProfile ? undefined : onFollowersClick}
                 onFollowingClick={isPublicProfile ? undefined : onFollowingClick}

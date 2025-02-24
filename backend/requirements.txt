@@ -12,9 +12,9 @@ psycopg2-binary==2.9.9
 redis==5.0.1
 messaging
 # Channels & WebSockets
-channels>=4.0.0
-channels-redis>=4.1.0
-daphne>=4.0.0
+channels==3.0.5
+channels-redis==3.4.1
+daphne==3.0.2
 
 # Media Processing
 Pillow==10.2.0

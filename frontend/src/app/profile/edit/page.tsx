@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { userApi } from '@/services/api';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from 'react-hot-toast';
@@ -829,7 +829,6 @@ export default function EditProfilePage() {
                   }}
                   cropShape="round"
                   showGrid={false}
-                  className="rounded-xl"
                 />
               </div>
 

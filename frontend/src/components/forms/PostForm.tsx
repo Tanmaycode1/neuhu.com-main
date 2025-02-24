@@ -14,7 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import ImageCropper from '@/components/shared/ImageCropper';
@@ -25,7 +25,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { MobileNav } from '@/components/layout/MobileNav';
 import { postsApi } from '@/services/postsApi';
-import { useAuth } from '@/hooks/useAuth'; // Add this hook if you have authentication
+import { useAuth } from '@/hooks/useAuth';
 
 const PostFormSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title must be less than 200 characters'),
@@ -36,6 +36,14 @@ const PostFormSchema = z.object({
 
 interface PostFormProps {
   type: 'NEWS' | 'AUDIO';
+}
+
+interface CreatePostData {
+  type: 'NEWS' | 'AUDIO';
+  title: string;
+  description: string;
+  image?: File;
+  audio_file?: File;
 }
 
 const PostForm = ({ type }: PostFormProps) => {
@@ -50,6 +58,7 @@ const PostForm = ({ type }: PostFormProps) => {
   const [uploadError, setUploadError] = useState<string | null>(null);
   
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const { user: currentUser } = useAuth();
 
   const form = useForm<z.infer<typeof PostFormSchema>>({
     resolver: zodResolver(PostFormSchema),
@@ -116,15 +125,16 @@ const PostForm = ({ type }: PostFormProps) => {
         return;
       }
 
-      const result = await postsApi.createPost({
-        type,
-        title: values.title,
-        description: values.description,
-        image: imageFile || undefined,
-        audio_file: audioFile || undefined,
-      });
+      const formData = new FormData();
+      formData.append('type', type);
+      formData.append('title', values.title);
+      formData.append('description', values.description);
+      if (imageFile) formData.append('image', imageFile);
+      if (audioFile) formData.append('audio_file', audioFile);
 
-      if (!result.success) {
+      const result = await postsApi.createPost(formData);
+
+      if (!result.success || !result.data) {
         throw new Error(result.error || 'Failed to create post');
       }
 
@@ -160,7 +170,7 @@ const PostForm = ({ type }: PostFormProps) => {
       <div className="flex">
         {/* Desktop Sidebar */}
         <div className="hidden lg:block lg:w-64 fixed inset-y-0">
-          <Sidebar />
+          <Sidebar currentUser={currentUser} />
         </div>
 
         {/* Main Content */}

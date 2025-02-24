@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
 import { userApi } from '@/services/api';
@@ -23,6 +23,7 @@ const onboardingSchema = z.object({
   birth_date: z.string().min(1, 'Birth date is required'),
   website: z.string().url().optional().or(z.literal('')),
   gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY']),
+  bio: z.string().max(500, 'Bio must be less than 500 characters').optional(),
   occupation: z.string().min(1, 'Occupation is required'),
   company: z.string().optional(),
   education: z.string().min(1, 'Education is required'),
@@ -46,6 +47,7 @@ export default function OnboardingPage() {
     register,
     handleSubmit,
     formState: { errors },
+    watch
   } = useForm<OnboardingFormData>({
     resolver: zodResolver(onboardingSchema),
     defaultValues: {
@@ -98,6 +100,7 @@ export default function OnboardingPage() {
         birth_date: data.birth_date,
         website: data.website,
         gender: data.gender,
+        bio: data.bio,
         occupation: data.occupation,
         company: data.company,
         education: data.education
@@ -248,15 +251,33 @@ export default function OnboardingPage() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Gender
                   </label>
-                  <Select
+                  <select
                     {...register('gender')}
-                    className="rounded-lg bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700"
+                    className="w-full rounded-lg bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 py-2 px-3"
                   >
                     <option value="MALE">Male</option>
                     <option value="FEMALE">Female</option>
                     <option value="OTHER">Other</option>
                     <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
-                  </Select>
+                  </select>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Bio
+                  </label>
+                  <textarea
+                    {...register('bio')}
+                    rows={4}
+                    className="w-full rounded-lg bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 py-2 px-3 resize-none"
+                    placeholder="Tell us about yourself..."
+                  />
+                  {errors.bio && (
+                    <p className="mt-1 text-sm text-red-500">{errors.bio.message}</p>
+                  )}
+                  <p className="mt-1 text-sm text-gray-500">
+                    {watch('bio')?.length || 0}/500 characters
+                  </p>
                 </div>
 
                 <div>

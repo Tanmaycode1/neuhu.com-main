@@ -53,6 +53,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'email_verified',
             'is_verified'
         ]
+        ref_name = "UserProfile"
 
     def get_avatar_url(self, obj):
         if obj.avatar:
@@ -129,6 +130,7 @@ class UserSerializer(serializers.ModelSerializer):
             'email', 'bio', 'avatar', 'is_followed',
             'posts_count', 'followers_count', 'following_count'
         ]
+        ref_name = "User"
 
     def get_avatar(self, obj):
         request = self.context.get('request')

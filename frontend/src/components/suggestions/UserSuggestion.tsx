@@ -1,6 +1,22 @@
+import Link from 'next/link';
+import Image from 'next/image';
+import { User } from 'lucide-react';
 import { FollowButton } from '@/components/ui/follow-button';
 
-export function UserSuggestion({ user, onFollowChange }) {
+interface UserSuggestionProps {
+  user: {
+    id: string;
+    username: string;
+    avatar?: string;
+    email: string;
+    first_name?: string;
+    last_name?: string;
+    is_followed?: boolean;
+  };
+  onFollowChange: () => void;
+}
+
+export function UserSuggestion({ user, onFollowChange }: UserSuggestionProps) {
   return (
     <div className="flex items-center gap-3">
       <Link href={`/profile/${user.username}`}>
@@ -33,6 +49,8 @@ export function UserSuggestion({ user, onFollowChange }) {
       </div>
       <FollowButton 
         userId={user.id}
+        username={user.username}
+        isFollowing={user.is_followed || false}
         onFollowChange={onFollowChange}
       />
     </div>
